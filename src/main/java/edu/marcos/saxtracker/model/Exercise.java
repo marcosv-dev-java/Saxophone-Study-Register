@@ -2,7 +2,7 @@ package edu.marcos.saxtracker.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "Exercicios")
+@Table(name = "exercicios")
 public class Exercise {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
