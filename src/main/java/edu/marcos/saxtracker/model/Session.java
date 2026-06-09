@@ -14,7 +14,7 @@ public class Session {
     private LocalDate date;
     @Column(name = "observacao")
     private String notes;
-    @Column(name = "ativo", nullable = false)
+    @Column(name = "status", nullable = false)
     private SessionStatus status;
     @ManyToOne
     @JoinColumn(name =  "rotina_id",nullable = false)
