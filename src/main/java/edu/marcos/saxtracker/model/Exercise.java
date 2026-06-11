@@ -15,6 +15,11 @@ public class Exercise {
     @Column(nullable = false,name = "tipo")
     private ExerciseType type;
 
+    public Exercise(String name, String description, ExerciseType type) {
+        this.name = name;
+        this.description = description;
+        this.type = type;
+    }
 
     public Exercise() {
     }
