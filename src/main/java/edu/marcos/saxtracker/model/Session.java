@@ -1,9 +1,6 @@
 package edu.marcos.saxtracker.model;
-
 import jakarta.persistence.*;
-
 import java.time.LocalDate;
-import java.util.Date;
 
 @Entity
 @Table(name = "sessao")
