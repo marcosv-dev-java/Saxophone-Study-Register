@@ -2,7 +2,7 @@ package edu.marcos.saxtracker.service;
 
 import edu.marcos.saxtracker.dto.ExerciseRequest;
 import edu.marcos.saxtracker.dto.ExerciseResponse;
-import edu.marcos.saxtracker.exceptions.ExerciseNotFoundException;
+import edu.marcos.saxtracker.exceptions.ResourceNotFoundException;
 import edu.marcos.saxtracker.model.Exercise;
 import edu.marcos.saxtracker.model.ExerciseType;
 import edu.marcos.saxtracker.repository.ExerciseRepository;
@@ -31,7 +31,7 @@ public class ExerciseService {
     }
     public ExerciseResponse findById(Long id){
         Exercise exercise = repository.findById(id).
-                orElseThrow(ExerciseNotFoundException::new);
+                orElseThrow(ResourceNotFoundException::new);
         return entityToResponse(exercise);
     }
     private ExerciseResponse entityToResponse(Exercise exercise){
