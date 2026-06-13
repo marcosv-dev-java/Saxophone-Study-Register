@@ -31,7 +31,7 @@ public class ExerciseService {
     }
     public ExerciseResponse findById(Long id){
         Exercise exercise = repository.findById(id).
-                orElseThrow(ResourceNotFoundException::new);
+                orElseThrow(() -> new ResourceNotFoundException("Exercise not found with id " + id));
         return entityToResponse(exercise);
     }
     private ExerciseResponse entityToResponse(Exercise exercise){
