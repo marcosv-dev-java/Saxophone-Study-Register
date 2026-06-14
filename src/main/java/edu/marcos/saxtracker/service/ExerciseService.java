@@ -59,11 +59,20 @@ public class ExerciseService {
 
     public ExerciseResponse update(Long id,ExerciseUpdateRequest request){
         Exercise exercise = findExerciseById(id);
+        if(!exercise.getActive()) throw new IllegalStateException("Cannot update an inactive exercise");
         if (request.name() != null) exercise.setName(request.name());
         if (request.description() != null) exercise.setDescription(request.description());
         if (request.type() != null) exercise.setType(request.type());
         repository.save(exercise);
         return entityToResponse(exercise);
+    }
+    public ExerciseResponse reactive(Long id){
+        Exercise exercise = findExerciseById(id);
+        if(exercise.getActive()) throw new IllegalStateException("The exercise is already active.");
+        exercise.setActive(true);
+        repository.save(exercise);
+        return entityToResponse(exercise);
+
     }
 
     public void hardDelete(Long id){
