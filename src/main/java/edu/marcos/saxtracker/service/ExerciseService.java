@@ -35,7 +35,7 @@ public class ExerciseService {
         return entityToResponse(exercise);
     }
     private ExerciseResponse entityToResponse(Exercise exercise){
-        return new ExerciseResponse(exercise.getId(), exercise.getName(), exercise.getDescription(), exercise.getType());
+        return new ExerciseResponse(exercise.getId(), exercise.getName(), exercise.getDescription(), exercise.getType(),exercise.getActive());
     }
     private List<ExerciseResponse> entityListToResponseList(List<Exercise> exercises){
         List<ExerciseResponse> responses = new ArrayList<>();
@@ -66,7 +66,17 @@ public class ExerciseService {
         return entityToResponse(exercise);
     }
 
-    public void delete(Long id){
+    public void hardDelete(Long id){
+        Exercise exercise = findExerciseById(id);
+        repository.delete(exercise);
+    }
+    public void softDelete(Long id){
+        Exercise exercise = findExerciseById(id);
+        if(exercise.getActive()){
+            exercise.setActive(false);
+            repository.save(exercise);
+        }
+        else throw new IllegalStateException("The active status is already false");
     }
 
 
