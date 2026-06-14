@@ -20,6 +20,7 @@ public class Session {
     private Routine routine;
 
     public Session() {
+        this.status = SessionStatus.OPEN;
     }
 
     public String getNotes() {

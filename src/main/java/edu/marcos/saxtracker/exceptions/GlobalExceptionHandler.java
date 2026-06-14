@@ -18,7 +18,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex){
         return ResponseEntity.
-                status(HttpStatus.NOT_FOUND).body(new ErrorResponse(404, "Exercise Not Found"));
+                status(HttpStatus.NOT_FOUND).body(new ErrorResponse(404, ex.getMessage()));
     }
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex){

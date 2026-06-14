@@ -14,16 +14,25 @@ public class Exercise {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false,name = "tipo")
     private ExerciseType type;
+    private Boolean active;
 
     public Exercise(String name, String description, ExerciseType type) {
         this.name = name;
         this.description = description;
         this.type = type;
+        active = true;
     }
 
     public Exercise() {
     }
 
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
 
     public Long getId() {
         return id;

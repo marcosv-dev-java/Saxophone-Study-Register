@@ -2,6 +2,7 @@ package edu.marcos.saxtracker.service;
 
 import edu.marcos.saxtracker.dto.ExerciseRequest;
 import edu.marcos.saxtracker.dto.ExerciseResponse;
+import edu.marcos.saxtracker.dto.ExerciseUpdateRequest;
 import edu.marcos.saxtracker.exceptions.ResourceNotFoundException;
 import edu.marcos.saxtracker.model.Exercise;
 import edu.marcos.saxtracker.model.ExerciseType;
@@ -30,8 +31,7 @@ public class ExerciseService {
         return new Exercise(request.name(), request.description(), request.type());
     }
     public ExerciseResponse findById(Long id){
-        Exercise exercise = repository.findById(id).
-                orElseThrow(() -> new ResourceNotFoundException("Exercise not found with id " + id));
+        Exercise exercise = findExerciseById(id);
         return entityToResponse(exercise);
     }
     private ExerciseResponse entityToResponse(Exercise exercise){
@@ -50,6 +50,23 @@ public class ExerciseService {
     }
     public List<ExerciseResponse> filterByType(ExerciseType type){
         return entityListToResponseList(repository.findByType(type));
+    }
+    private Exercise findExerciseById(Long id) {
+        return repository.findById(id).
+                orElseThrow(() -> new ResourceNotFoundException("Exercise not found with id " + id));
+    }
+
+
+    public ExerciseResponse update(Long id,ExerciseUpdateRequest request){
+        Exercise exercise = findExerciseById(id);
+        if (request.name() != null) exercise.setName(request.name());
+        if (request.description() != null) exercise.setDescription(request.description());
+        if (request.type() != null) exercise.setType(request.type());
+        repository.save(exercise);
+        return entityToResponse(exercise);
+    }
+
+    public void delete(Long id){
     }
 
 

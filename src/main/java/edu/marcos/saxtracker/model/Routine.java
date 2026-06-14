@@ -26,6 +26,7 @@ public class Routine {
     private String description;
 
     public Routine() {
+        active = true;
     }
 
     public Long getId() {
