@@ -8,9 +8,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import static org.springframework.http.ResponseEntity.status;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -25,7 +25,7 @@ public class ExerciseControllerTest {
                 post("/exercicios")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"name\":\"Escala de Do\",\"type\":\"SCALE\"}")
-        ).andExpect(status().)
+        ).andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("Escala de Do"));
 
 
