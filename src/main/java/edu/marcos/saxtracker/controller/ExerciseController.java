@@ -2,6 +2,7 @@ package edu.marcos.saxtracker.controller;
 
 import edu.marcos.saxtracker.dto.ExerciseRequest;
 import edu.marcos.saxtracker.dto.ExerciseResponse;
+import edu.marcos.saxtracker.dto.ExerciseUpdateRequest;
 import edu.marcos.saxtracker.model.ExerciseType;
 import edu.marcos.saxtracker.service.ExerciseService;
 import jakarta.validation.Valid;
@@ -46,6 +47,15 @@ public class ExerciseController {
     @GetMapping("/{id}")
     public ResponseEntity<ExerciseResponse> getById(@PathVariable Long id){
         return ResponseEntity.ok(service.findById(id));
+    }
+    @PatchMapping("/{id}")
+    public ResponseEntity<ExerciseResponse> update(@PathVariable Long id, @Valid @RequestBody ExerciseUpdateRequest request){
+        ExerciseResponse response = service.update(id,request);
+        return ResponseEntity.ok(response);
+    }
+    @PatchMapping("/{id}/reactivate")
+    public ResponseEntity<ExerciseResponse> reactivateExercise(@PathVariable Long id){
+        return ResponseEntity.ok(service.reactivate(id));
     }
 
 }

@@ -66,7 +66,7 @@ public class ExerciseService {
         repository.save(exercise);
         return entityToResponse(exercise);
     }
-    public ExerciseResponse reactive(Long id){
+    public ExerciseResponse reactivate(Long id){
         Exercise exercise = findExerciseById(id);
         if(exercise.getActive()) throw new IllegalStateException("The exercise is already active.");
         exercise.setActive(true);
