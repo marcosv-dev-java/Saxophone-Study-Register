@@ -49,13 +49,23 @@ public class ExerciseController {
         return ResponseEntity.ok(service.findById(id));
     }
     @PatchMapping("/{id}")
-    public ResponseEntity<ExerciseResponse> update(@PathVariable Long id, @Valid @RequestBody ExerciseUpdateRequest request){
+    public ResponseEntity<ExerciseResponse> update(@PathVariable Long id,@RequestBody ExerciseUpdateRequest request){
         ExerciseResponse response = service.update(id,request);
         return ResponseEntity.ok(response);
     }
     @PatchMapping("/{id}/reactivate")
     public ResponseEntity<ExerciseResponse> reactivateExercise(@PathVariable Long id){
         return ResponseEntity.ok(service.reactivate(id));
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> hardDeleteById(@PathVariable Long id){
+        service.hardDelete(id);
+        return ResponseEntity.noContent().build();
+    }
+    @DeleteMapping("/{id}/deactivate")
+    public ResponseEntity<Void> softDeleteById(@PathVariable Long id){
+        service.softDelete(id);
+        return ResponseEntity.noContent().build();
     }
 
 }
