@@ -53,7 +53,7 @@ public class ExerciseController {
         ExerciseResponse response = service.update(id,request);
         return ResponseEntity.ok(response);
     }
-    @PatchMapping("/{id}/reactivate")
+    @PatchMapping("/{id}/reativar")
     public ResponseEntity<ExerciseResponse> reactivateExercise(@PathVariable Long id){
         return ResponseEntity.ok(service.reactivate(id));
     }
@@ -62,7 +62,7 @@ public class ExerciseController {
         service.hardDelete(id);
         return ResponseEntity.noContent().build();
     }
-    @DeleteMapping("/{id}/deactivate")
+    @DeleteMapping("/{id}/desativar")
     public ResponseEntity<Void> softDeleteById(@PathVariable Long id){
         service.softDelete(id);
         return ResponseEntity.noContent().build();
