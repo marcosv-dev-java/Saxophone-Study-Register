@@ -1,13 +1,13 @@
 package edu.marcos.saxtracker.controller;
-
-
 import com.jayway.jsonpath.JsonPath;
-import edu.marcos.saxtracker.dto.ExerciseResponse;
 import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.jackson.autoconfigure.JacksonAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -19,6 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@Import(JacksonAutoConfiguration.class)
 public class ExerciseControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -36,10 +37,15 @@ public class ExerciseControllerTest {
 
         return ((Number) JsonPath.read(response, "$.id")).longValue();
     }
-    private ExerciseResponse deactivateExercise(Long id)throws Exception{
+    private Boolean deactivateExercise(Long id)throws Exception{
         String response = mockMvc.perform(
-                delete("/"+id+"desativar")
+                delete("/exercicios/"+id+"/desativar")
         )
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        return ((Boolean) JsonPath.read(response, "$.active"));
     }
 
     @Test
@@ -96,11 +102,13 @@ public class ExerciseControllerTest {
     @Test
     void shouldReactivateExerciseById() throws Exception{
         Long id = this.createExercise("exercise name","SCALE");
+        Boolean exerciseActivate = deactivateExercise(id);
+        Assertions.assertFalse(exerciseActivate);
 
         mockMvc.perform(
                 patch("/exercicios/"+ id+"/reativar")
-
-        )
+        ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.active").value(true));
     }
 
 
