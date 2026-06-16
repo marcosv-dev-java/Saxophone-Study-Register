@@ -2,6 +2,7 @@ package edu.marcos.saxtracker.controller;
 
 
 import com.jayway.jsonpath.JsonPath;
+import edu.marcos.saxtracker.dto.ExerciseResponse;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -35,6 +35,11 @@ public class ExerciseControllerTest {
                 .getContentAsString();
 
         return ((Number) JsonPath.read(response, "$.id")).longValue();
+    }
+    private ExerciseResponse deactivateExercise(Long id)throws Exception{
+        String response = mockMvc.perform(
+                delete("/"+id+"desativar")
+        )
     }
 
     @Test
@@ -76,6 +81,26 @@ public class ExerciseControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].name").value("NameTest1"))
                 .andExpect(jsonPath("$[1].name").value("NameTest3"));
+    }
+    @Test
+    void shouldUpdateExerciseById() throws Exception {
+        Long id = this.createExercise("exercise name","SCALE");
+        mockMvc.perform(
+                patch("/exercicios/"+ id)
+                .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"Escala de Do\"}")
+        ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Escala de Do"))
+                .andExpect(jsonPath("$.type").value("SCALE"));
+    }
+    @Test
+    void shouldReactivateExerciseById() throws Exception{
+        Long id = this.createExercise("exercise name","SCALE");
+
+        mockMvc.perform(
+                patch("/exercicios/"+ id+"/reativar")
+
+        )
     }
 
 

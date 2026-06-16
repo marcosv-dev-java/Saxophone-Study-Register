@@ -79,13 +79,13 @@ public class ExerciseService {
         Exercise exercise = findExerciseById(id);
         repository.delete(exercise);
     }
-    public void softDelete(Long id){
+    public ExerciseResponse softDelete(Long id){
         Exercise exercise = findExerciseById(id);
-        if(exercise.getActive()){
-            exercise.setActive(false);
-            repository.save(exercise);
-        }
-        else throw new IllegalStateException("The active status is already false");
+        if(!exercise.getActive())
+            throw new IllegalStateException("The active status is already false");
+        exercise.setActive(false);
+        repository.save(exercise);
+        return entityToResponse(exercise);
     }
 
 

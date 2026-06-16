@@ -63,9 +63,9 @@ public class ExerciseController {
         return ResponseEntity.noContent().build();
     }
     @DeleteMapping("/{id}/desativar")
-    public ResponseEntity<Void> softDeleteById(@PathVariable Long id){
-        service.softDelete(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<ExerciseResponse> softDeleteById(@PathVariable Long id){
+        ExerciseResponse response = service.softDelete(id);
+        return ResponseEntity.ok().body(response);
     }
 
 }
