@@ -45,7 +45,7 @@ public class ExerciseControllerTest {
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-        return ((Boolean) JsonPath.read(response, "$.active"));
+        return JsonPath.read(response, "$.active");
     }
 
     @Test
@@ -109,6 +109,22 @@ public class ExerciseControllerTest {
                 patch("/exercicios/"+ id+"/reativar")
         ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.active").value(true));
+    }
+    @Test
+    void shouldHardDeleteExerciseById() throws Exception {
+        Long id = this.createExercise("exercise name","SCALE");
+        mockMvc.perform(
+                delete("/exercicios/"+ id))
+                .andExpect(status().isNoContent());
+        mockMvc.perform(get("/exercicios/" + id))
+                .andExpect(status().isNotFound());
+
+    }
+    @Test
+    void shouldDeactivateExerciseById() throws Exception {
+        Long id = this.createExercise("name","SCALE");
+        Boolean exerciseDeactivate = deactivateExercise(id);
+        Assertions.assertFalse(exerciseDeactivate);
     }
 
 
