@@ -4,13 +4,13 @@ import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jackson.autoconfigure.JacksonAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.context.annotation.Import;
+
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -19,7 +19,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-@Import(JacksonAutoConfiguration.class)
 public class ExerciseControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -125,6 +124,79 @@ public class ExerciseControllerTest {
         Long id = this.createExercise("name","SCALE");
         Boolean exerciseDeactivate = deactivateExercise(id);
         Assertions.assertFalse(exerciseDeactivate);
+    }
+    @Test
+    void shouldNotAddExerciseWithBlankName() throws Exception {
+        mockMvc.perform(
+                post("/exercicios")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\": \"\", \"type\": \"SCALE\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors", hasItem("name: must not be blank")));
+
+    }
+    @Test
+    void shouldNotAddExerciseWithNullType() throws Exception {
+        mockMvc.perform(
+                post("/exercicios")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\": \"a nice name\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors", hasItem("type: must not be null")));
+
+    }
+    @Test
+    void shouldNotAddExerciseWithAlreadyExists() throws Exception {
+        this.createExercise("sameName","SCALE");
+        mockMvc.perform(
+                post("/exercicios")
+                .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\": \"sameName\",\"type\": \"SCALE\"}")
+        ).andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("Data Integrity Violation"));
+    }
+    @Test
+    void shouldNotUpdateInactiveExercise() throws Exception {
+        Long id = this.createExercise("name","SCALE");
+        this.deactivateExercise(id);
+        mockMvc.perform(
+                patch("/exercicios/"+ id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"Novo Nome\"}")
+        ).andExpect(status().isConflict());
+
+    }
+    @Test
+    void shouldReturnNotFoundWhenExerciseIdDoesNotExist() throws Exception {
+        mockMvc.perform(
+                        get("/exercicios/999999"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void shouldNotDeactivateAlreadyInactiveExercise() throws Exception {
+        Long id = this.createExercise("name", "SCALE");
+        this.deactivateExercise(id);
+
+        mockMvc.perform(
+                        delete("/exercicios/" + id + "/desativar"))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void shouldNotReactivateAlreadyActiveExercise() throws Exception {
+        Long id = this.createExercise("name", "SCALE");
+
+        mockMvc.perform(
+                        patch("/exercicios/" + id + "/reativar"))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenTypeIsInvalid() throws Exception {
+        mockMvc.perform(
+                        get("/exercicios?type=INVALIDO"))
+                .andExpect(status().isBadRequest());
     }
 
 
