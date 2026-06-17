@@ -1,4 +1,4 @@
-package edu.marcos.saxtracker.dto;
+package edu.marcos.saxtracker.dto.exercise;
 
 import edu.marcos.saxtracker.model.ExerciseType;
 import jakarta.validation.constraints.NotBlank;

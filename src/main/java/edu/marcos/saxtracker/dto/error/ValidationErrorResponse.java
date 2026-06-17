@@ -1,4 +1,4 @@
-package edu.marcos.saxtracker.dto;
+package edu.marcos.saxtracker.dto.error;
 
 import java.util.List;
 

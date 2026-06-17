@@ -1,6 +1,6 @@
 package edu.marcos.saxtracker.exceptions;
-import edu.marcos.saxtracker.dto.ErrorResponse;
-import edu.marcos.saxtracker.dto.ValidationErrorResponse;
+import edu.marcos.saxtracker.dto.error.ErrorResponse;
+import edu.marcos.saxtracker.dto.error.ValidationErrorResponse;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

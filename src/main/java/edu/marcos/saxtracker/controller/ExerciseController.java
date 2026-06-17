@@ -1,8 +1,8 @@
 package edu.marcos.saxtracker.controller;
 
-import edu.marcos.saxtracker.dto.ExerciseRequest;
-import edu.marcos.saxtracker.dto.ExerciseResponse;
-import edu.marcos.saxtracker.dto.ExerciseUpdateRequest;
+import edu.marcos.saxtracker.dto.exercise.ExerciseRequest;
+import edu.marcos.saxtracker.dto.exercise.ExerciseResponse;
+import edu.marcos.saxtracker.dto.exercise.ExerciseUpdateRequest;
 import edu.marcos.saxtracker.model.ExerciseType;
 import edu.marcos.saxtracker.service.ExerciseService;
 import jakarta.validation.Valid;
