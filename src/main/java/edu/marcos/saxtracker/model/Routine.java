@@ -29,6 +29,12 @@ public class Routine {
         active = true;
     }
 
+    public Routine(String name, List<Exercise> exercises, String description) {
+        this.name = name;
+        this.exercises = exercises;
+        this.description = description;
+    }
+
     public Long getId() {
         return id;
     }
