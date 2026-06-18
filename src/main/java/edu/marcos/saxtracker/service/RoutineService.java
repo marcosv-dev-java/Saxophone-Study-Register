@@ -8,6 +8,7 @@ import edu.marcos.saxtracker.model.Exercise;
 import edu.marcos.saxtracker.model.Routine;
 import edu.marcos.saxtracker.repository.ExerciseRepository;
 import edu.marcos.saxtracker.repository.RoutineRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -46,7 +47,17 @@ public class RoutineService {
         return new RoutineResponse(routine.getId(),routine.getName(),routine.getDescription(),
                 routine.getActive(),
                 this.listExercisesToSummary(routine.getExercises()));
+    }
 
+    public List<RoutineResponse> findAll(){
+        List<Routine> allRoutine = repository.findAllWithExercises();
+        List<RoutineResponse> response = new ArrayList<>();
+        for (Routine r : allRoutine) {
+            response.add(new RoutineResponse(r.getId()
+            ,r.getName(),r.getDescription(),r.getActive(),
+                    this.listExercisesToSummary(r.getExercises())));
+        }
+        return response;
     }
 
 }
