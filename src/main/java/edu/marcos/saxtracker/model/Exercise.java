@@ -14,6 +14,7 @@ public class Exercise {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false,name = "tipo")
     private ExerciseType type;
+    @Column(nullable = false, name = "ativo")
     private Boolean active;
 
     public Exercise(String name, String description, ExerciseType type) {

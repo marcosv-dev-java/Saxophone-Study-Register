@@ -33,6 +33,7 @@ public class Routine {
         this.name = name;
         this.exercises = exercises;
         this.description = description;
+        this.active = true;
     }
 
     public Long getId() {
