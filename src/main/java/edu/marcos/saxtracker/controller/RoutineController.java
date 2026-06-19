@@ -5,13 +5,11 @@ import edu.marcos.saxtracker.dto.routine.RoutineResponse;
 import edu.marcos.saxtracker.service.RoutineService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/rotinas")
@@ -31,6 +29,14 @@ public class RoutineController {
                 .buildAndExpand(response.id())
                 .toUri();
         return ResponseEntity.created(uri).body(response);
+    }
+    @GetMapping
+    public ResponseEntity<List<RoutineResponse>> getAllRoutines(){
+        return ResponseEntity.ok(service.findAll());
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<RoutineResponse> getRoutineById(@PathVariable Long id){
+        return ResponseEntity.ok(service.findById(id));
     }
 
 }
