@@ -48,5 +48,9 @@ public class RoutineController {
     public ResponseEntity<RoutineResponse> deactivateRoutine(@PathVariable Long id){
         return ResponseEntity.ok(service.deactivateRoutine(id));
     }
+    @PatchMapping("/{id}/reativar")
+    public ResponseEntity<RoutineResponse> reactivateRoutine(@PathVariable Long id){
+        return ResponseEntity.ok(service.reactivateRoutine(id));
+    }
 
 }
