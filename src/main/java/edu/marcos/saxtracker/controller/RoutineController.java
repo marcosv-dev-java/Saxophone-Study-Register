@@ -2,6 +2,7 @@ package edu.marcos.saxtracker.controller;
 
 import edu.marcos.saxtracker.dto.routine.RoutineRequest;
 import edu.marcos.saxtracker.dto.routine.RoutineResponse;
+import edu.marcos.saxtracker.dto.routine.RoutineUpdateRequest;
 import edu.marcos.saxtracker.service.RoutineService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +38,15 @@ public class RoutineController {
     @GetMapping("/{id}")
     public ResponseEntity<RoutineResponse> getRoutineById(@PathVariable Long id){
         return ResponseEntity.ok(service.findById(id));
+    }
+    @PatchMapping("/{id}")
+    public ResponseEntity<RoutineResponse> updateRoutine(@RequestBody RoutineUpdateRequest request, @PathVariable Long id){
+        return ResponseEntity.ok(service.updateRoutine(id,request));
+    }
+
+    @DeleteMapping("/{id}/desativar")
+    public ResponseEntity<RoutineResponse> deactivateRoutine(@PathVariable Long id){
+        return ResponseEntity.ok(service.deactivateRoutine(id));
     }
 
 }

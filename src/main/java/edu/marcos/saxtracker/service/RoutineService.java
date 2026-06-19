@@ -93,5 +93,13 @@ public class RoutineService {
         repository.save(routine);
         return entityToResponse(routine);
     }
+    public RoutineResponse reactivateRoutine(Long id){
+        Routine routine = findRoutineById(id);
+        if(routine.getActive())
+            throw new IllegalStateException("The active status is already true");
+        routine.setActive(true);
+        repository.save(routine);
+        return entityToResponse(routine);
+    }
 
 }
