@@ -1,6 +1,6 @@
 package edu.marcos.saxtracker.service;
 
-import edu.marcos.saxtracker.dto.routine.ExerciseSummary;
+import edu.marcos.saxtracker.dto.exercise.ExerciseSummary;
 import edu.marcos.saxtracker.dto.routine.RoutineRequest;
 import edu.marcos.saxtracker.dto.routine.RoutineResponse;
 import edu.marcos.saxtracker.dto.routine.RoutineUpdateRequest;

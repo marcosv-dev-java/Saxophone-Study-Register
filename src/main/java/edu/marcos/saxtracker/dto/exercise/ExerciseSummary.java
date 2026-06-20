@@ -1,4 +1,4 @@
-package edu.marcos.saxtracker.dto.routine;
+package edu.marcos.saxtracker.dto.exercise;
 
 public record ExerciseSummary(Long id, String name) {
 }
