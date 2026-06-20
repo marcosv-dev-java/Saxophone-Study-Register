@@ -22,6 +22,12 @@ public class Session {
     public Session() {
         this.status = SessionStatus.OPEN;
     }
+    public Session(Routine routine, String notes) {
+        this();
+        this.date = LocalDate.now();
+        this.routine = routine;
+        this.notes = notes;
+    }
 
     public String getNotes() {
         return notes;
