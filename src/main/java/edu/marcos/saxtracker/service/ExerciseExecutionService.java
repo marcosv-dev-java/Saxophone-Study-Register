@@ -1,5 +1,9 @@
 package edu.marcos.saxtracker.service;
 
+import edu.marcos.saxtracker.dto.execution.ExerciseExecutionRequest;
+import edu.marcos.saxtracker.dto.execution.ExerciseExecutionResponse;
+import edu.marcos.saxtracker.exceptions.ResourceNotFoundException;
+import edu.marcos.saxtracker.model.*;
 import edu.marcos.saxtracker.repository.ExerciseExecutionRepository;
 import edu.marcos.saxtracker.repository.ExerciseRepository;
 import edu.marcos.saxtracker.repository.SessionRepository;
@@ -15,5 +19,35 @@ public class ExerciseExecutionService {
         this.repository = repository;
         this.exerciseRepository = exerciseRepository;
         this.sessionRepository = sessionRepository;
+    }
+    private Exercise findExerciseById(Long id){
+        return exerciseRepository.findById(id).
+                orElseThrow(() -> new ResourceNotFoundException("Exercise not found"));
+    }
+    private Session findSessionById(Long id){
+        return sessionRepository.findById(id).
+                orElseThrow(() -> new ResourceNotFoundException("Session not found"));
+    }
+    private ExerciseExecution requestToEntity(Long sessionId, ExerciseExecutionRequest request){
+        Exercise exercise = findExerciseById(request.exerciseId());
+        validateValue(request.value(), exercise);
+        Session session = findSessionById(sessionId);
+        if (session.getStatus() == SessionStatus.CLOSED) throw new IllegalStateException("Session has been closed");
+        if (repository.existsByExercise_IdAndSession_Id(request.exerciseId(), sessionId)) {
+            throw new IllegalArgumentException("This exercise has already been registered in this session");
+        }
+        return new ExerciseExecution(
+                request.value(), exercise, session, request.notes()
+        );
+    }
+    private void validateValue(Double value, Exercise exercise){
+        if(exercise.getType() == ExerciseType.SCALE){
+            if(value <= 0) throw new IllegalArgumentException("The bpm needs to be greater than zero.");
+        }
+        else if (value < 1 || value > 10) throw new IllegalArgumentException("The value needs to be in range 1-10.");
+    }
+
+    public ExerciseExecutionResponse createExerciseExecution(Long sessionId, ExerciseExecutionRequest request) {
+
     }
 }
