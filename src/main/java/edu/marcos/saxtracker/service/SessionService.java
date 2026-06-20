@@ -9,6 +9,10 @@ import edu.marcos.saxtracker.repository.RoutineRepository;
 import edu.marcos.saxtracker.repository.SessionRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class SessionService {
     private final SessionRepository repository;
@@ -21,6 +25,10 @@ public class SessionService {
     private Routine findRoutineById(Long id){
        return routineRepository.findById(id)
                 .orElseThrow(()->new ResourceNotFoundException("Routine not found with id: " + id));
+    }
+    private Session findSessionById(Long id){
+        return repository.findById(id)
+                .orElseThrow(()->new ResourceNotFoundException("Session not found with id: " + id));
     }
 
     private SessionResponse entityToResponse(Session session){
@@ -38,4 +46,22 @@ public class SessionService {
         repository.save(session);
         return entityToResponse(session);
     }
+
+    public SessionResponse findById(Long id){
+        return entityToResponse(findSessionById(id));
+    }
+    public SessionResponse findByDate(LocalDate date){
+        return entityToResponse(repository.findByDate(date).
+                orElseThrow(() -> new ResourceNotFoundException("No sessions were created on that date.")));
+    }
+    public List<SessionResponse> findAll(){
+        List<Session> sessions = repository.findAll();
+        List<SessionResponse> responses = new ArrayList<>();
+        for(Session session : sessions){
+            responses.add(entityToResponse(session));
+        }
+        return responses;
+    }
+
+
 }
