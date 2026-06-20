@@ -4,7 +4,10 @@ package edu.marcos.saxtracker.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "execucao_exercicio")
+@Table(
+        name = "execucao_exercicio",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"exercicio_id", "sessao_id"})
+)
 public class ExerciseExecution {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,6 +23,15 @@ public class ExerciseExecution {
     @Column(name = "observacao")
     private String notes;
 
+    public ExerciseExecution(Double value, Exercise exercise, Session session, String notes) {
+        this.value = value;
+        this.exercise = exercise;
+        this.session = session;
+        this.notes = notes;
+    }
+
+    public ExerciseExecution() {
+    }
 
     public Exercise getExercise() {
         return exercise;
@@ -27,9 +39,6 @@ public class ExerciseExecution {
 
     public void setExercise(Exercise exercise) {
         this.exercise = exercise;
-    }
-
-    public ExerciseExecution() {
     }
 
     public Long getId() {
