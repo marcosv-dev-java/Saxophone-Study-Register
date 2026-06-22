@@ -2,6 +2,8 @@ package edu.marcos.saxtracker.service;
 
 import edu.marcos.saxtracker.dto.execution.ExerciseExecutionRequest;
 import edu.marcos.saxtracker.dto.execution.ExerciseExecutionResponse;
+import edu.marcos.saxtracker.dto.exercise.ExerciseSummary;
+import edu.marcos.saxtracker.dto.session.SessionSummary;
 import edu.marcos.saxtracker.exceptions.ResourceNotFoundException;
 import edu.marcos.saxtracker.model.*;
 import edu.marcos.saxtracker.repository.ExerciseExecutionRepository;
@@ -46,8 +48,23 @@ public class ExerciseExecutionService {
         }
         else if (value < 1 || value > 10) throw new IllegalArgumentException("The value needs to be in range 1-10.");
     }
+    private ExerciseExecutionResponse entityToResponse(ExerciseExecution entity){
+        SessionSummary sessionSummary = new SessionSummary(entity.getSession().getId(), entity.getSession().getDate());
+        return new ExerciseExecutionResponse(
+                entity.getId(),
+                entity.getValue(),
+                new ExerciseSummary(
+                        entity.getExercise().getId(),
+                        entity.getExercise().getName()
+                ),
+                sessionSummary,
+                entity.getNotes()
+        );
+    }
 
     public ExerciseExecutionResponse createExerciseExecution(Long sessionId, ExerciseExecutionRequest request) {
-
+        ExerciseExecution entity = requestToEntity(sessionId, request);
+        repository.save(entity);
+        return entityToResponse(entity);
     }
 }
