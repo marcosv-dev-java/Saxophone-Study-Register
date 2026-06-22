@@ -5,8 +5,12 @@ import edu.marcos.saxtracker.dto.session.SessionResponse;
 import edu.marcos.saxtracker.exceptions.ResourceNotFoundException;
 import edu.marcos.saxtracker.model.Routine;
 import edu.marcos.saxtracker.model.Session;
+import edu.marcos.saxtracker.model.SessionStatus;
+import edu.marcos.saxtracker.model.Skill;
+import edu.marcos.saxtracker.repository.ExerciseExecutionRepository;
 import edu.marcos.saxtracker.repository.RoutineRepository;
 import edu.marcos.saxtracker.repository.SessionRepository;
+import edu.marcos.saxtracker.repository.SkillAssessmentRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -17,11 +21,16 @@ import java.util.List;
 public class SessionService {
     private final SessionRepository repository;
     private final RoutineRepository routineRepository;
+    private final ExerciseExecutionRepository executionRepository;
+    private final SkillAssessmentRepository assessmentRepository;
 
-    public SessionService(SessionRepository repository, RoutineRepository routineRepository) {
+    public SessionService(SessionRepository repository, RoutineRepository routineRepository, ExerciseExecutionRepository exerciseExecutionRepository, SkillAssessmentRepository skillAssessmentRepository) {
         this.repository = repository;
         this.routineRepository = routineRepository;
+        this.executionRepository = exerciseExecutionRepository;
+        this.assessmentRepository = skillAssessmentRepository;
     }
+
     private Routine findRoutineById(Long id){
        return routineRepository.findById(id)
                 .orElseThrow(()->new ResourceNotFoundException("Routine not found with id: " + id));
@@ -61,6 +70,20 @@ public class SessionService {
             responses.add(entityToResponse(session));
         }
         return responses;
+    }
+    public void checkAndCloseSessionIfComplete(Long sessionId) {
+        Session session = findSessionById(sessionId);
+
+        long executionsCount = executionRepository.countBySession_Id(sessionId);
+        long expectedExecutions = session.getRoutine().getExercises().size();
+
+        long assessmentsCount = assessmentRepository.countBySession_Id(sessionId);
+        long expectedAssessments = Skill.values().length;
+
+        if (executionsCount == expectedExecutions && assessmentsCount == expectedAssessments) {
+            session.setStatus(SessionStatus.CLOSED);
+            repository.save(session);
+        }
     }
 
 
