@@ -7,6 +7,7 @@ import edu.marcos.saxtracker.dto.session.SessionRequest;
 import edu.marcos.saxtracker.dto.session.SessionResponse;
 import edu.marcos.saxtracker.service.ExerciseExecutionService;
 import edu.marcos.saxtracker.service.SessionService;
+import edu.marcos.saxtracker.utils.LocationUriBuilder;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,12 +31,7 @@ public class SessionController {
     @PostMapping
     public ResponseEntity<SessionResponse> createSession(@RequestBody @Valid SessionRequest request){
         SessionResponse response = service.createSession(request);
-        URI uri = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(response.id())
-                .toUri();
-        return ResponseEntity.created(uri).body(response);
+        return ResponseEntity.created(LocationUriBuilder.buildLocationUri(response.id())).body(response);
     }
     @GetMapping("/{id}")
     public ResponseEntity<SessionResponse> findSessionById(@PathVariable Long id){
@@ -57,12 +53,7 @@ public class SessionController {
             @RequestBody @Valid ExerciseExecutionRequest request
     ) {
         ExerciseExecutionResponse response = executionService.createExerciseExecution(id, request);
-        URI uri = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(response.id())
-                .toUri();
-        return ResponseEntity.created(uri).body(response);
+        return ResponseEntity.created(LocationUriBuilder.buildLocationUri(response.id())).body(response);
     }
 
 }

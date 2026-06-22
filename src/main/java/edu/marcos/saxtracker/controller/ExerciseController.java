@@ -5,6 +5,7 @@ import edu.marcos.saxtracker.dto.exercise.ExerciseResponse;
 import edu.marcos.saxtracker.dto.exercise.ExerciseUpdateRequest;
 import edu.marcos.saxtracker.model.ExerciseType;
 import edu.marcos.saxtracker.service.ExerciseService;
+import edu.marcos.saxtracker.utils.LocationUriBuilder;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,12 +26,7 @@ public class ExerciseController {
     @PostMapping
     public ResponseEntity<ExerciseResponse> add(@RequestBody @Valid ExerciseRequest request){
         ExerciseResponse response = service.save(request);
-        URI uri = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(response.id())
-                .toUri();
-        return ResponseEntity.created(uri).body(response);
+        return ResponseEntity.created(LocationUriBuilder.buildLocationUri(response.id())).body(response);
     }
 
     @GetMapping

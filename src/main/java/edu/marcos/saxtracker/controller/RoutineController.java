@@ -4,6 +4,7 @@ import edu.marcos.saxtracker.dto.routine.RoutineRequest;
 import edu.marcos.saxtracker.dto.routine.RoutineResponse;
 import edu.marcos.saxtracker.dto.routine.RoutineUpdateRequest;
 import edu.marcos.saxtracker.service.RoutineService;
+import edu.marcos.saxtracker.utils.LocationUriBuilder;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,12 +25,7 @@ public class RoutineController {
     @PostMapping
     public ResponseEntity<RoutineResponse> addRoutine(@RequestBody @Valid RoutineRequest request){
         RoutineResponse response = service.createRoutine(request);
-        URI uri = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(response.id())
-                .toUri();
-        return ResponseEntity.created(uri).body(response);
+        return ResponseEntity.created(LocationUriBuilder.buildLocationUri(response.id())).body(response);
     }
     @GetMapping
     public ResponseEntity<List<RoutineResponse>> getAllRoutines(){
