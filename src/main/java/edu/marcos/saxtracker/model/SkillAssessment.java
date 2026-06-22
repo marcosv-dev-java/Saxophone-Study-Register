@@ -20,6 +20,12 @@ public class SkillAssessment {
     public SkillAssessment() {
     }
 
+    public SkillAssessment(Skill skill, Session session, Integer value) {
+        this.skill = skill;
+        this.session = session;
+        this.value = value;
+    }
+
     public Long getId() {
         return id;
     }
