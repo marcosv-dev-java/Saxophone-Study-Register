@@ -22,11 +22,14 @@ import java.util.Set;
 public class SkillAssessmentService {
     private final SkillAssessmentRepository repository;
     private final SessionRepository sessionRepository;
+    private final SessionService sessionService;
 
-    public SkillAssessmentService(SkillAssessmentRepository repository, SessionRepository sessionRepository) {
+    public SkillAssessmentService(SkillAssessmentRepository repository, SessionRepository sessionRepository, SessionService sessionService) {
         this.repository = repository;
         this.sessionRepository = sessionRepository;
+        this.sessionService = sessionService;
     }
+
     private SkillAssessmentResponse entityToResponse(SkillAssessment entity) {
         return new SkillAssessmentResponse(
                 entity.getId(),
@@ -69,6 +72,7 @@ public class SkillAssessmentService {
             repository.save(skill);
             responses.add(entityToResponse(skill));
         }
+        sessionService.checkAndCloseSessionIfComplete(sessionId);
         return responses;
     }
 }

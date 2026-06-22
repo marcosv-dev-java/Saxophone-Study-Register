@@ -16,12 +16,15 @@ public class ExerciseExecutionService {
     private final ExerciseExecutionRepository repository;
     private final ExerciseRepository exerciseRepository;
     private final SessionRepository sessionRepository;
+    private final SessionService sessionService;
 
-    public ExerciseExecutionService(ExerciseExecutionRepository repository, ExerciseRepository exerciseRepository, SessionRepository sessionRepository) {
+    public ExerciseExecutionService(ExerciseExecutionRepository repository, ExerciseRepository exerciseRepository, SessionRepository sessionRepository, SessionService sessionService) {
         this.repository = repository;
         this.exerciseRepository = exerciseRepository;
         this.sessionRepository = sessionRepository;
+        this.sessionService = sessionService;
     }
+
     private Exercise findExerciseById(Long id){
         return exerciseRepository.findById(id).
                 orElseThrow(() -> new ResourceNotFoundException("Exercise not found"));
@@ -65,6 +68,7 @@ public class ExerciseExecutionService {
     public ExerciseExecutionResponse createExerciseExecution(Long sessionId, ExerciseExecutionRequest request) {
         ExerciseExecution entity = requestToEntity(sessionId, request);
         repository.save(entity);
+        sessionService.checkAndCloseSessionIfComplete(sessionId);
         return entityToResponse(entity);
     }
 }
