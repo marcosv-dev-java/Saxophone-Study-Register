@@ -1,8 +1,11 @@
 package edu.marcos.saxtracker.controller;
 
 
+import edu.marcos.saxtracker.dto.execution.ExerciseExecutionRequest;
+import edu.marcos.saxtracker.dto.execution.ExerciseExecutionResponse;
 import edu.marcos.saxtracker.dto.session.SessionRequest;
 import edu.marcos.saxtracker.dto.session.SessionResponse;
+import edu.marcos.saxtracker.service.ExerciseExecutionService;
 import edu.marcos.saxtracker.service.SessionService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +20,11 @@ import java.util.List;
 @RequestMapping("/sessoes")
 public class SessionController {
     private final SessionService service;
-    public SessionController(SessionService service){
+    private final ExerciseExecutionService executionService;
+
+    public SessionController(SessionService service, ExerciseExecutionService executionService) {
         this.service = service;
+        this.executionService = executionService;
     }
 
     @PostMapping
@@ -44,6 +50,19 @@ public class SessionController {
     @GetMapping
     public ResponseEntity<List<SessionResponse>> findAll(){
         return  ResponseEntity.ok().body(service.findAll());
+    }
+    @PostMapping("/{id}/execucoes")
+    public ResponseEntity<ExerciseExecutionResponse> addExecution(
+            @PathVariable Long id,
+            @RequestBody @Valid ExerciseExecutionRequest request
+    ) {
+        ExerciseExecutionResponse response = executionService.createExerciseExecution(id, request);
+        URI uri = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(response.id())
+                .toUri();
+        return ResponseEntity.created(uri).body(response);
     }
 
 }
