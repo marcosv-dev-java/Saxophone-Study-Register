@@ -1,16 +1,22 @@
 package edu.marcos.saxtracker.controller;
 
 
+import edu.marcos.saxtracker.dto.assessment.SkillAssessmentRequest;
+import edu.marcos.saxtracker.dto.assessment.SkillAssessmentResponse;
 import edu.marcos.saxtracker.dto.execution.ExerciseExecutionRequest;
 import edu.marcos.saxtracker.dto.execution.ExerciseExecutionResponse;
 import edu.marcos.saxtracker.dto.session.SessionRequest;
 import edu.marcos.saxtracker.dto.session.SessionResponse;
 import edu.marcos.saxtracker.service.ExerciseExecutionService;
 import edu.marcos.saxtracker.service.SessionService;
+import edu.marcos.saxtracker.service.SkillAssessmentService;
 import edu.marcos.saxtracker.utils.LocationUriBuilder;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -19,10 +25,12 @@ import java.util.List;
 public class SessionController {
     private final SessionService service;
     private final ExerciseExecutionService executionService;
+    private final SkillAssessmentService skillAssessmentService;
 
-    public SessionController(SessionService service, ExerciseExecutionService executionService) {
+    public SessionController(SessionService service, ExerciseExecutionService executionService, SkillAssessmentService skillAssessmentService) {
         this.service = service;
         this.executionService = executionService;
+        this.skillAssessmentService = skillAssessmentService;
     }
 
     @PostMapping
@@ -56,6 +64,13 @@ public class SessionController {
     @GetMapping("/execucoes")
     public ResponseEntity<List<ExerciseExecutionResponse>> findAllExecutions(){
         return ResponseEntity.ok().body(executionService.getAllExecutions());
+    }
+    @PostMapping("/{id}/avaliacoes")
+    public ResponseEntity<List<SkillAssessmentResponse>> evaluateSession(@PathVariable Long id,
+                                                                        @RequestBody @Valid List<SkillAssessmentRequest> request){
+        List<SkillAssessmentResponse> response = skillAssessmentService.evaluateSession(id, request);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().build().toUri();
+        return ResponseEntity.created(uri).body(response);
     }
 
 }
