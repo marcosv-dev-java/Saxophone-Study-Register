@@ -2,6 +2,7 @@ package edu.marcos.saxtracker.service;
 
 import edu.marcos.saxtracker.dto.execution.ExerciseExecutionRequest;
 import edu.marcos.saxtracker.dto.execution.ExerciseExecutionResponse;
+import edu.marcos.saxtracker.dto.exercise.ExerciseResponse;
 import edu.marcos.saxtracker.dto.exercise.ExerciseSummary;
 import edu.marcos.saxtracker.dto.session.SessionSummary;
 import edu.marcos.saxtracker.exceptions.ResourceNotFoundException;
@@ -10,6 +11,9 @@ import edu.marcos.saxtracker.repository.ExerciseExecutionRepository;
 import edu.marcos.saxtracker.repository.ExerciseRepository;
 import edu.marcos.saxtracker.repository.SessionRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class ExerciseExecutionService {
@@ -70,5 +74,13 @@ public class ExerciseExecutionService {
         repository.save(entity);
         sessionService.checkAndCloseSessionIfComplete(sessionId);
         return entityToResponse(entity);
+    }
+    public List<ExerciseExecutionResponse> getAllExecutions(){
+        List<ExerciseExecution> entityList = repository.findAll();
+        List<ExerciseExecutionResponse> responses = new ArrayList<>();
+        for (ExerciseExecution entity : entityList) {
+            responses.add(entityToResponse(entity));
+        }
+        return responses;
     }
 }

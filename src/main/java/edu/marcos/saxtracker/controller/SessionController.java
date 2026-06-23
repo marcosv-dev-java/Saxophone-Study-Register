@@ -44,6 +44,7 @@ public class SessionController {
     public ResponseEntity<List<SessionResponse>> findAll(){
         return  ResponseEntity.ok().body(service.findAll());
     }
+
     @PostMapping("/{id}/execucoes")
     public ResponseEntity<ExerciseExecutionResponse> addExecution(
             @PathVariable Long id,
@@ -51,6 +52,10 @@ public class SessionController {
     ) {
         ExerciseExecutionResponse response = executionService.createExerciseExecution(id, request);
         return ResponseEntity.created(LocationUriBuilder.buildLocationUri(response.id())).body(response);
+    }
+    @GetMapping("/execucoes")
+    public ResponseEntity<List<ExerciseExecutionResponse>> findAllExecutions(){
+        return ResponseEntity.ok().body(executionService.getAllExecutions());
     }
 
 }
