@@ -19,6 +19,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -91,15 +92,20 @@ public class ExerciseExecutionServiceTest {
 
     }
     @Test
-    void shouldThrowWhenIllegalArgumentByExerciseValue(){
+    void shouldThrowWhenExerciseValueIsGreaterThanTen(){
         when(exerciseRepository.findById(any())).thenReturn(Optional.of(exerciseMock));
         when(exerciseMock.getType()).thenReturn(ExerciseType.BREATH_SPEED);
         ExerciseExecutionRequest request = new ExerciseExecutionRequest(11.0,exerciseId,"breath");
-        ExerciseExecutionRequest request2 = new ExerciseExecutionRequest(0.0,exerciseId,"breath");
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> service.createExerciseExecution(sessionId,request));
-        IllegalArgumentException exception2 = assertThrows(IllegalArgumentException.class, () -> service.createExerciseExecution(sessionId,request2));
         assertEquals("The value needs to be in range 1-10.",exception.getMessage());
-        assertEquals("The value needs to be in range 1-10.",exception2.getMessage());
+    }
+    @Test
+    void shouldThrowWhenExerciseValueIsLessThanOne(){
+        when(exerciseRepository.findById(any())).thenReturn(Optional.of(exerciseMock));
+        when(exerciseMock.getType()).thenReturn(ExerciseType.BREATH_SPEED);
+        ExerciseExecutionRequest request = new ExerciseExecutionRequest(0.0,exerciseId,"breath");
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> service.createExerciseExecution(sessionId,request));
+        assertEquals("The value needs to be in range 1-10.",exception.getMessage());
     }
     @Test
     void shouldThrowWhenSessionNotFound(){
@@ -132,6 +138,25 @@ public class ExerciseExecutionServiceTest {
         ExerciseExecutionRequest request = new ExerciseExecutionRequest(10.0,exerciseId,"scale");
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> service.createExerciseExecution(sessionId,request));
         assertEquals("This exercise has already been registered in this session",exception.getMessage());
+    }
+    @Test
+    void shouldGetAllExerciseExecutions(){
+        ExerciseExecution executionMock = mock(ExerciseExecution.class);
+        when(repository.findAll()).thenReturn(List.of(executionMock));
+        when(executionMock.getId()).thenReturn(20L);
+        when(executionMock.getValue()).thenReturn(50.0);
+        when(executionMock.getExercise()).thenReturn(exerciseMock);
+        when(executionMock.getSession()).thenReturn(sessionMock);
+        when(executionMock.getNotes()).thenReturn("I'm a mocked object lol");
+        when(exerciseMock.getName()).thenReturn("Mock exercise");
+        when(sessionMock.getDate()).thenReturn(LocalDate.now());
+        ExerciseExecutionResponse response = new ExerciseExecutionResponse(
+                20L,50.0, new ExerciseSummary(exerciseMock.getId(),exerciseMock.getName()),
+                new SessionSummary(sessionMock.getId(),sessionMock.getDate()),
+                "I'm a mocked object lol"
+        );
+        assertEquals(List.of(response), service.getAllExecutions());
+
     }
 
 
