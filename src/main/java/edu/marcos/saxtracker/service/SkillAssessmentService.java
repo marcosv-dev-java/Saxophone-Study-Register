@@ -50,6 +50,10 @@ public class SkillAssessmentService {
         if (session.getStatus() == SessionStatus.CLOSED)
             throw new IllegalStateException("Session is already closed");
         for (SkillAssessmentRequest assessment : requests) {
+            if (assessment.value() <= 0 || assessment.value() > 10)
+                throw new IllegalArgumentException("Value must be between 1 and 10");
+            if (repository.existsBySkillAndSession_Id(assessment.skill(), sessionId))
+                throw new IllegalArgumentException("Skill assessment to "+ assessment.skill().toString() +" already exists in this session");
             uniqueSkills.add(assessment.skill());
         }
         if (uniqueSkills.size() != requests.size()) {
@@ -60,17 +64,11 @@ public class SkillAssessmentService {
             throw new IllegalArgumentException("All skills must be assessed");
         }
         for (SkillAssessmentRequest assessment : requests) {
-            if (assessment.value() <= 0 || assessment.value() > 10)
-                throw new IllegalArgumentException("Value must be between 0 and 10");
-            if (repository.existsBySkillAndSession_Id(assessment.skill(), sessionId))
-                throw new IllegalArgumentException("Skill assessment to "+ assessment.skill().toString() +" already exists in this session");
-            SkillAssessment skill = new SkillAssessment(
-                    assessment.skill(),
-                    session,
-                    assessment.value()
+            SkillAssessment entity = new SkillAssessment(
+                    assessment.skill(),session, assessment.value()
             );
-            repository.save(skill);
-            responses.add(entityToResponse(skill));
+           repository.save(entity);
+           responses.add(entityToResponse(entity));
         }
         sessionService.checkAndCloseSessionIfComplete(sessionId);
         return responses;
