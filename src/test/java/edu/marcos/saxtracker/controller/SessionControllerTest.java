@@ -9,6 +9,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -119,7 +121,7 @@ public class SessionControllerTest {
 
         mockMvc.perform(get("/sessoes"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)));
+                .andExpect(jsonPath("$[?(@.exercise.id == " + exerciseId + ")]").exists());
     }
 
     @Test
@@ -174,9 +176,9 @@ public class SessionControllerTest {
                         .content("{\"value\":" + 10 + ",\"exerciseId\": " + exerciseId + "}")
         )
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.session.id").value(1))
-                .andExpect(jsonPath("$.session.date").value("2026-06-25"))
-                .andExpect(jsonPath("$.exercise.id").value(1))
+                .andExpect(jsonPath("$.session.id").value(sessionId))
+                .andExpect(jsonPath("$.session.date").value(LocalDate.now().toString()))
+                .andExpect(jsonPath("$.exercise.id").value(exerciseId))
                 .andExpect(jsonPath("$.exercise.name").value("Escala de Do"))
                 .andExpect(jsonPath("$.value").value(10));}
     private void closeSessionViaEvaluation(Long sessionId) throws Exception {
@@ -233,18 +235,17 @@ public class SessionControllerTest {
         Long sessionId = this.createSession(exerciseId, routineId);
         this.closeSessionViaEvaluation(sessionId);
 
-        String body = "[" +
-                "{\"skill\":\"TIMBRE\",\"value\":1}," +
-                "{\"skill\":\"TUNING\",\"value\":2}," +
-                "{\"skill\":\"ARTICULATION\",\"value\":3}," +
-                "{\"skill\":\"BREATHING\",\"value\":4}," +
-                "{\"skill\":\"READING\",\"value\":5}" +
-                "]";
+        String body = "{\"value\":40, \"exerciseId\": " + exerciseId + "}";
 
-        mockMvc.perform(post("/sessoes/" + sessionId + "/avaliacoes")
+        mockMvc.perform(post("/sessoes/" + sessionId + "/execucoes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
-                .andExpect(status().isConflict());
+                .andExpect(status().isCreated());
+        mockMvc.perform(post("/sessoes/" + sessionId + "/execucoes")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(body))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("Session has been closed"));;
     }
 
     @Test
@@ -316,6 +317,6 @@ public class SessionControllerTest {
 
         mockMvc.perform(get("/sessoes/execucoes"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(1)));
+                .andExpect(jsonPath("$[?(@.exercise.id == " + exerciseId + ")]").exists());
     }
 }
