@@ -9,14 +9,12 @@ import edu.marcos.saxtracker.repository.ExerciseExecutionRepository;
 import edu.marcos.saxtracker.repository.ExerciseRepository;
 import edu.marcos.saxtracker.repository.SkillAssessmentRepository;
 import org.springframework.stereotype.Service;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.IsoFields;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 
@@ -56,9 +54,6 @@ public class ProgressService {
         return new SkillWeekComparisonResponse(actualResponse, previousResponse);
     }
     public List<WeeklyProgressResponse> getExerciseEvolutionInPeriod(Long exerciseId, Integer weekPeriod){
-        /*TODO: criar o método para calcular o progresso da evolução do exericio do periodo atual até a semanas solicitadas
-        ex: Semanas solicitadas = 10, calcular da semana atual até 10 semanas atras
-         */
         Exercise exercise = exerciseRepository.findById(exerciseId).orElseThrow(
                 () -> new ResourceNotFoundException("Exercise not found with id: " + exerciseId)
         );
