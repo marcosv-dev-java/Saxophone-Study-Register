@@ -1,6 +1,9 @@
 package edu.marcos.saxtracker.service;
+import edu.marcos.saxtracker.dto.exercise.ExerciseResponse;
+import edu.marcos.saxtracker.dto.exercise.ExerciseSummary;
 import edu.marcos.saxtracker.dto.progress.SkillProgressResponse;
 import edu.marcos.saxtracker.dto.progress.SkillWeekComparisonResponse;
+import edu.marcos.saxtracker.dto.progress.WeekSummaryProgress;
 import edu.marcos.saxtracker.dto.progress.WeeklyProgressResponse;
 import edu.marcos.saxtracker.exceptions.ResourceNotFoundException;
 import edu.marcos.saxtracker.model.Exercise;
@@ -16,6 +19,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -28,6 +32,22 @@ public class ProgressService {
         this.assessmentRepository = assessmentRepository;
         this.executionRepository = executionRepository;
         this.exerciseRepository = exerciseRepository;
+    }
+    private int[] isoParseInt(String iso){
+        int year;
+        int weekNumber;
+        if (iso == null)
+            throw new IllegalArgumentException("The requested week is null.");
+        String[] parts =  iso.split("-");
+        try {
+             year = Integer.parseInt(parts[0]);
+             if (!parts[1].substring(0,1).equalsIgnoreCase("w"))
+                 throw new IllegalArgumentException("Malformed pattern. use (yyyy-Www)");
+             weekNumber = Integer.parseInt(parts[1].substring(1));
+        }catch (ArrayIndexOutOfBoundsException | NumberFormatException x){
+            throw new IllegalArgumentException("Malformed pattern. use (yyyy-Www)");
+        }
+        return new int[]{year,weekNumber};
     }
 
     private SkillProgressResponse averageInPeriod_filterBySkill(Skill skill, LocalDate start, LocalDate end) {
@@ -44,9 +64,9 @@ public class ProgressService {
         // retorna o dia da segunda feira e domingo da semana
     }
     public SkillWeekComparisonResponse compareWeekBySkill(Skill skill,String week){
-        String[] parts =  week.split("-");
-        int year = Integer.parseInt(parts[0]);
-        int weekNumber = Integer.parseInt(parts[1].substring(1));
+        int[] parts =  this.isoParseInt(week);
+        int year = parts[0];
+        int weekNumber = parts[1];
         LocalDate[] actual =  this.getWeekRange(year, weekNumber);
         SkillProgressResponse actualResponse = averageInPeriod_filterBySkill(skill, actual[0], actual[1]);
         LocalDate[] previous = {actual[0].minusDays(7), actual[0].minusDays(1)};
@@ -71,6 +91,22 @@ public class ProgressService {
         Collections.reverse(responses);
         return responses;
     }
+    public WeekSummaryProgress getWeekSummary(String week){
+        int[] parts = this.isoParseInt(week);
+        int year = parts[0];
+        int weekNumber = parts[1];
+        LocalDate[] weekRange = this.getWeekRange(year, weekNumber);
+        Optional<Exercise> mostPracticed = executionRepository.findMostPracticedExercise(weekRange[0],weekRange[1]);
+
+        ExerciseSummary exerciseSummary = mostPracticed
+                .map(e -> new ExerciseSummary(e.getId(), e.getName()))
+                .orElse(null);
+        return new WeekSummaryProgress(exerciseSummary,
+                executionRepository.averageWeeklyByBpm(weekRange[0], weekRange[1]),
+                executionRepository.averageWeeklyByValue(weekRange[0], weekRange[1]));
+
+    }
+
 
 
 }
