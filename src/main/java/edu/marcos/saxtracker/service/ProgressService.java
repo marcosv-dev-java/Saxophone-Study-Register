@@ -57,7 +57,7 @@ public class ProgressService {
         Exercise exercise = exerciseRepository.findById(exerciseId).orElseThrow(
                 () -> new ResourceNotFoundException("Exercise not found with id: " + exerciseId)
         );
-        if (weekPeriod < 0) throw new IllegalArgumentException("Weeks solicited cannot be less than zero");
+        if (weekPeriod <= 0) throw new IllegalArgumentException("Weeks solicited cannot be less than zero");
         List<WeeklyProgressResponse> responses = new ArrayList<>();
         LocalDate sundayActual = LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
         for (int i = 0; i < weekPeriod; i++) {

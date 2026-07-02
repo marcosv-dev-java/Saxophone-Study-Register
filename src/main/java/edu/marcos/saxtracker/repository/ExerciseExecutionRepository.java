@@ -5,8 +5,7 @@ import edu.marcos.saxtracker.model.ExerciseExecution;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import java.awt.print.Pageable;
+import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -33,12 +32,12 @@ public interface ExerciseExecutionRepository extends JpaRepository<ExerciseExecu
     WHERE s.date BETWEEN :start AND :end
     GROUP BY e.exercise
     ORDER BY COUNT(e) DESC
+    LIMIT 3
 """)
-    // Query que retorna a lista dos exercícios mais praticados, de forma decrescente(do mais praticado até o menos), pageable define o LIMIT do SQL ex: (0,3) pega os 3 primeiros
+    // Query que retorna a lista dos exercícios mais praticados, de forma decrescente(do mais praticado até o menos)
     List<Exercise> findMostPracticedExercise(
             @Param("start") LocalDate start,
-            @Param("end") LocalDate end,
-            Pageable pageable
+            @Param("end") LocalDate end
     );
     @Query("""
             SELECT AVG(e.value)
