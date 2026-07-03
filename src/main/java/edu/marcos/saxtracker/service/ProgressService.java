@@ -90,6 +90,17 @@ public class ProgressService {
         Collections.reverse(responses);
         return responses;
     }
+    public WeeklyProgressResponse getExerciseEvolutionInActualWeek(Long exerciseId){
+        Exercise exercise = exerciseRepository.findById(exerciseId).orElseThrow(
+                () -> new ResourceNotFoundException("Exercise not found with id: " + exerciseId)
+        );
+        LocalDate sundayActual = LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+        LocalDate monday = sundayActual.minusDays(6);
+        Double weekAverage = executionRepository.findAverageByExerciseAndPeriod(exercise,monday,sundayActual);
+        int weekBasedYear = monday.get(IsoFields.WEEK_BASED_YEAR);
+        int weekNumber = monday.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
+        return new WeeklyProgressResponse(weekBasedYear + "-W"+ weekNumber,weekAverage);
+    }
     public WeekSummaryProgress getWeekSummary(String week){
         int[] parts = this.isoParseInt(week);
         int year = parts[0];

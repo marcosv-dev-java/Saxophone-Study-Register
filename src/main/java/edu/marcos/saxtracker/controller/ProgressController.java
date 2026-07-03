@@ -26,11 +26,22 @@ public class ProgressController {
     public ResponseEntity<?> getSkillProgressInWeek(@Parameter(description = "Target week for the summary", example = "2026-W15",
                                                                                       schema = @Schema(description = "Format: YYYY-Www")) @PathVariable String week,
                                                                                                            @RequestParam(required = false)
-                                                                              @Parameter(description = "Optional skill to compare with previous week", example = "SCALE")
+                                                                              @Parameter(description = "Optional skill to compare with previous week", example = "TIMBRE")
                                                                               Skill skill) {
         if(skill != null){
             return ResponseEntity.ok().body(service.compareWeekBySkill(skill,week));
         }
         return ResponseEntity.ok().body(service.skillSummaryInWeek(week));
+    }
+    @GetMapping("/exercicios/{id}")
+    public ResponseEntity<?> getExerciseEvolution(@Parameter(description = "Exercise id")
+                                                  @PathVariable Long id,
+                                                  @RequestParam(required = false)
+                                                  @Parameter(description = "Optional parameter to compare the current week with previous weeks within the requested range.")
+                                                  Integer weekPeriod){
+        if(weekPeriod != null) {
+            return ResponseEntity.ok().body(service.getExerciseEvolutionInPeriod(id, weekPeriod));
+        }
+        return ResponseEntity.ok().body(service.getExerciseEvolutionInActualWeek(id));
     }
 }
