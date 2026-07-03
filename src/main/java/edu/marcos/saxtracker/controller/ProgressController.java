@@ -1,6 +1,8 @@
 package edu.marcos.saxtracker.controller;
 
 import edu.marcos.saxtracker.dto.progress.SkillProgressResponse;
+import edu.marcos.saxtracker.dto.progress.SkillWeekComparisonResponse;
+import edu.marcos.saxtracker.model.Skill;
 import edu.marcos.saxtracker.service.ProgressService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,9 +22,15 @@ public class ProgressController {
         this.service = service;
     }
 
-    @GetMapping("/habilidade/{week}")
-    public ResponseEntity<List<SkillProgressResponse>> getSkillProgressInWeek(@Parameter(description = "Target week for the summary", example = "2026-W15",
-                                                                                          schema = @Schema(description = "Format: YYYY-Www")) @PathVariable String week){
+    @GetMapping("/habilidades/{week}")
+    public ResponseEntity<?> getSkillProgressInWeek(@Parameter(description = "Target week for the summary", example = "2026-W15",
+                                                                                      schema = @Schema(description = "Format: YYYY-Www")) @PathVariable String week,
+                                                                                                           @RequestParam(required = false)
+                                                                              @Parameter(description = "Optional skill to compare with previous week", example = "SCALE")
+                                                                              Skill skill) {
+        if(skill != null){
+            return ResponseEntity.ok().body(service.compareWeekBySkill(skill,week));
+        }
         return ResponseEntity.ok().body(service.skillSummaryInWeek(week));
     }
 }
