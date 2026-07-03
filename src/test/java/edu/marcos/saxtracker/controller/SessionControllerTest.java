@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -121,7 +122,7 @@ public class SessionControllerTest {
 
         mockMvc.perform(get("/sessoes"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[?(@.exercise.id == " + exerciseId + ")]").exists());
+                .andExpect(jsonPath("$[*].routineId", hasItem(routineId.intValue())));
     }
 
     @Test
