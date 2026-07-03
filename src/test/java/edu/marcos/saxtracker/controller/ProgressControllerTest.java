@@ -8,6 +8,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -21,7 +22,6 @@ public class ProgressControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-
 
     private Long createExercise(String name, String type) throws Exception {
         String response = mockMvc.perform(
@@ -86,16 +86,17 @@ public class ProgressControllerTest {
                 .andExpect(status().isCreated());
     }
 
-    private void criarDadosDeTreinoCompletos() throws Exception {
+    private void createCompleteTrainingData() throws Exception {
         Long exerciseId = this.createExercise("Escala de Do", "SCALE");
         Long routineId = this.createRoutine("Rotina Diaria", exerciseId);
         Long sessionId = this.createSession(routineId);
         this.addExecution(sessionId, exerciseId, 120);
         this.evaluateSession(sessionId);
     }
+
     @Test
     void shouldGetSkillSummaryInWeek_WhenNoSkillProvided() throws Exception {
-        this.criarDadosDeTreinoCompletos();
+        this.createCompleteTrainingData();
         String currentWeek = "2026-W27";
 
         mockMvc.perform(get("/progresso/habilidades/" + currentWeek))
@@ -105,7 +106,7 @@ public class ProgressControllerTest {
 
     @Test
     void shouldCompareWeekBySkill_WhenSkillIsProvided() throws Exception {
-        this.criarDadosDeTreinoCompletos();
+        this.createCompleteTrainingData();
         String currentWeek = "2026-W27";
 
         mockMvc.perform(get("/progresso/habilidades/" + currentWeek)
@@ -119,8 +120,28 @@ public class ProgressControllerTest {
 
         mockMvc.perform(get("/progresso/habilidades/" + currentWeek)
                         .param("skill", "HABILIDADE_INVALIDA"))
-                .andExpect(status().isBadRequest()); // O Spring Boot barra automaticamente pelo Enum
+                .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void shouldReturnBadRequest_WhenWeekFormatIsInvalid() throws Exception {
+        mockMvc.perform(get("/progresso/habilidades/2026-27"))
+                .andExpect(status().isBadRequest());
+
+        mockMvc.perform(get("/progresso/habilidades/2026-W2"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturnBadRequest_WhenWeekNumberIsOutOfRange() throws Exception {
+        mockMvc.perform(get("/progresso/habilidades/2026-W54"))
+                .andExpect(status().isBadRequest());
+
+        mockMvc.perform(get("/progresso/habilidades/2026-W00"))
+                .andExpect(status().isBadRequest());
+    }
+
+
     @Test
     void shouldGetExerciseEvolutionInActualWeek_WhenNoPeriodProvided() throws Exception {
         Long exerciseId = this.createExercise("Escala de Sol", "SCALE");
@@ -143,14 +164,36 @@ public class ProgressControllerTest {
                         .param("weekPeriod", "4"))
                 .andExpect(status().isOk());
     }
+
     @Test
     void shouldReturnNotFound_WhenExerciseDoesNotExist() throws Exception {
         mockMvc.perform(get("/progresso/exercicios/999999"))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    void shouldReturnBadRequest_WhenPeriodIsGreaterThanMax() throws Exception {
+        Long exerciseId = this.createExercise("Escala de Sol", "SCALE");
+        mockMvc.perform(get("/progresso/exercicios/" + exerciseId)
+                        .param("weekPeriod", "54"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void shouldReturnBadRequest_WhenPeriodIsZeroOrNegative() throws Exception {
+        Long exerciseId = this.createExercise("Escala de Sol", "SCALE");
+        mockMvc.perform(get("/progresso/exercicios/" + exerciseId)
+                        .param("weekPeriod", "0"))
+                .andExpect(status().isBadRequest());
+
+        mockMvc.perform(get("/progresso/exercicios/" + exerciseId)
+                        .param("weekPeriod", "-5"))
+                .andExpect(status().isBadRequest());
+    }
+
     @Test
     void shouldGetWeekSummaryInActualWeek_WhenNoWeekProvided() throws Exception {
-        this.criarDadosDeTreinoCompletos();
+        this.createCompleteTrainingData();
 
         mockMvc.perform(get("/progresso/resumo"))
                 .andExpect(status().isOk());
@@ -158,7 +201,7 @@ public class ProgressControllerTest {
 
     @Test
     void shouldGetWeekSummary_WhenSpecificWeekIsProvided() throws Exception {
-        this.criarDadosDeTreinoCompletos();
+        this.createCompleteTrainingData();
         String targetWeek = "2026-W27";
 
         mockMvc.perform(get("/progresso/resumo")
