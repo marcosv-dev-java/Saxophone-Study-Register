@@ -74,6 +74,15 @@ SaxTracker nasceu de uma rotina real de prática. A ideia é dar ao músico uma 
 | `POST` | `/sessoes/{id}/execucoes` | Registrar execução de exercício |
 | `POST` | `/sessoes/{id}/avaliacoes` | Registrar avaliações de habilidades |
 
+### Progresso (`/progresso`)
+| Método | Rota | Descrição |
+|---|---|---|
+| `GET` | `/progresso/habilidades?semana=2026-W15` | Média de todas as habilidades na semana |
+| `GET` | `/progresso/habilidades/{skill}?semana=2026-W15` | Comparação de uma habilidade com semana anterior |
+| `GET` | `/progresso/exercicios/{id}` | Evolução do exercício na semana atual |
+| `GET` | `/progresso/exercicios/{id}/historico?semanas=4` | Histórico de evolução em N semanas |
+| `GET` | `/progresso/resumo?semana=2026-W15` | Resumo semanal completo |
+
 ## Documentação Interativa
 
 Com a aplicação rodando, acesse o Swagger UI em:
