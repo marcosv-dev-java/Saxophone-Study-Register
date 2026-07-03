@@ -116,6 +116,17 @@ public class ProgressService {
                 executionRepository.averageWeeklyByValue(weekRange[0], weekRange[1]));
 
     }
+    public WeekSummaryProgress getWeekSummaryInActualWeek(){
+        LocalDate sunday = LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+        LocalDate monday = sunday.minusDays(6);
+        Optional<Exercise> mostPracticed = executionRepository.findMostPracticedExercise(monday,sunday);
+        ExerciseSummary exerciseSummary = mostPracticed
+                .map(e -> new ExerciseSummary(e.getId(), e.getName()))
+                .orElse(null);
+        return new WeekSummaryProgress(exerciseSummary,
+                executionRepository.averageWeeklyByBpm(monday, sunday),
+                executionRepository.averageWeeklyByValue(monday, sunday));
+    }
     public List<SkillProgressResponse> skillSummaryInWeek(String week){
         int[] parts = this.isoParseInt(week);
         int year = parts[0];

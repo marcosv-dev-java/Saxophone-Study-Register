@@ -2,6 +2,7 @@ package edu.marcos.saxtracker.controller;
 
 import edu.marcos.saxtracker.dto.progress.SkillProgressResponse;
 import edu.marcos.saxtracker.dto.progress.SkillWeekComparisonResponse;
+import edu.marcos.saxtracker.dto.progress.WeekSummaryProgress;
 import edu.marcos.saxtracker.model.Skill;
 import edu.marcos.saxtracker.service.ProgressService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -23,7 +24,7 @@ public class ProgressController {
     }
 
     @GetMapping("/habilidades/{week}")
-    public ResponseEntity<?> getSkillProgressInWeek(@Parameter(description = "Target week for the summary", example = "2026-W15",
+    public ResponseEntity<?> getSkillProgressInWeek(@Parameter(description = "Target week for the skill progress summary", example = "2026-W15",
                                                                                       schema = @Schema(description = "Format: YYYY-Www")) @PathVariable String week,
                                                                                                            @RequestParam(required = false)
                                                                               @Parameter(description = "Optional skill to compare with previous week", example = "TIMBRE")
@@ -43,5 +44,14 @@ public class ProgressController {
             return ResponseEntity.ok().body(service.getExerciseEvolutionInPeriod(id, weekPeriod));
         }
         return ResponseEntity.ok().body(service.getExerciseEvolutionInActualWeek(id));
+    }
+    @GetMapping("/resumo")
+    public ResponseEntity<WeekSummaryProgress> getWeekSummary(@RequestParam(required = false)
+                                                              @Parameter(description = "Target week to get a summary", example = "2026-W21")
+                                                              String week){
+        if(week != null && !week.isBlank()){
+            return ResponseEntity.ok().body(service.getWeekSummary(week));
+        }
+        return ResponseEntity.ok().body(service.getWeekSummaryInActualWeek());
     }
 }
