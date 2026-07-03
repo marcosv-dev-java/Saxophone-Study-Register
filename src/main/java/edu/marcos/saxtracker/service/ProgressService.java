@@ -11,6 +11,8 @@ import edu.marcos.saxtracker.repository.ExerciseExecutionRepository;
 import edu.marcos.saxtracker.repository.ExerciseRepository;
 import edu.marcos.saxtracker.repository.SkillAssessmentRepository;
 import org.springframework.stereotype.Service;
+
+import java.time.DateTimeException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.IsoFields;
@@ -26,6 +28,7 @@ public class ProgressService {
     private final SkillAssessmentRepository assessmentRepository;
     private final ExerciseExecutionRepository executionRepository;
     private final ExerciseRepository exerciseRepository;
+    private static final int MAX_WEEK_PERIOD = 53;
 
     public ProgressService(SkillAssessmentRepository assessmentRepository, ExerciseExecutionRepository executionRepository, ExerciseRepository exerciseRepository) {
         this.assessmentRepository = assessmentRepository;
@@ -35,17 +38,18 @@ public class ProgressService {
     private int[] isoParseInt(String iso){
         int year;
         int weekNumber;
-        if (iso == null)
-            throw new IllegalArgumentException("The requested week is null.");
+        if (iso == null || !iso.matches("^\\d{4}-[Ww]\\d{2}$")) {
+            throw new IllegalArgumentException("Malformed pattern. Use the format (yyyy-Www), e.g., 2026-W15");
+        }
         String[] parts =  iso.split("-");
         try {
              year = Integer.parseInt(parts[0]);
-             if (!parts[1].substring(0,1).equalsIgnoreCase("w"))
-                 throw new IllegalArgumentException("Malformed pattern. use (yyyy-Www)");
              weekNumber = Integer.parseInt(parts[1].substring(1));
-        }catch (ArrayIndexOutOfBoundsException | NumberFormatException x){
+        }catch (ArrayIndexOutOfBoundsException | NumberFormatException | StringIndexOutOfBoundsException e) {
             throw new IllegalArgumentException("Malformed pattern. use (yyyy-Www)");
         }
+        if (weekNumber < 1 || weekNumber > MAX_WEEK_PERIOD)
+            throw new IllegalArgumentException("Invalid week number. It must be between 01 and 53.");
         return new int[]{year,weekNumber};
     }
 
@@ -55,12 +59,16 @@ public class ProgressService {
         ));
     }
     private LocalDate[] getWeekRange(int year, int weekNumber) {
-        LocalDate start = LocalDate.of(year, 1, 1)
-                .with(IsoFields.WEEK_BASED_YEAR, year)
-                .with(IsoFields.WEEK_OF_WEEK_BASED_YEAR,weekNumber)
-                .with(DayOfWeek.MONDAY);
-        return new LocalDate[]{start, start.plusDays(6)};
-        // retorna o dia da segunda feira e domingo da semana
+        try {
+            LocalDate start = LocalDate.of(year, 1, 1)
+                    .with(IsoFields.WEEK_BASED_YEAR, year)
+                    .with(IsoFields.WEEK_OF_WEEK_BASED_YEAR, weekNumber)
+                    .with(DayOfWeek.MONDAY);
+            return new LocalDate[]{start, start.plusDays(6)};
+        } catch (DateTimeException e) {
+            throw new IllegalArgumentException("The week " + weekNumber + " does not exist in the year " + year);
+        }
+        // retorna o dia da segunda-feira e domingo da semana
     }
     public SkillWeekComparisonResponse compareWeekBySkill(Skill skill,String week){
         int[] parts =  this.isoParseInt(week);
@@ -76,7 +84,10 @@ public class ProgressService {
         Exercise exercise = exerciseRepository.findById(exerciseId).orElseThrow(
                 () -> new ResourceNotFoundException("Exercise not found with id: " + exerciseId)
         );
-        if (weekPeriod <= 0) throw new IllegalArgumentException("Weeks solicited cannot be less or equal than zero");
+        if (weekPeriod <= 0) throw new IllegalArgumentException
+                ("Weeks solicited cannot be less or equal than zero");
+        if (weekPeriod > MAX_WEEK_PERIOD) throw new IllegalArgumentException
+                ("Cannot request a period greater than " + MAX_WEEK_PERIOD + " weeks.");
         List<WeeklyProgressResponse> responses = new ArrayList<>();
         LocalDate sundayActual = LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
         for (int i = 0; i < weekPeriod; i++) {
@@ -84,7 +95,7 @@ public class ProgressService {
             Double weekAverage = executionRepository.findAverageByExerciseAndPeriod(exercise,monday,sundayActual);
             int weekBasedYear = monday.get(IsoFields.WEEK_BASED_YEAR);
             int weekNumber = monday.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
-            responses.add(new WeeklyProgressResponse(weekBasedYear + "-W"+ weekNumber,weekAverage));
+            responses.add(new WeeklyProgressResponse(weekBasedYear + "-W" + String.format("%02d", weekNumber), weekAverage));
             sundayActual = monday.minusDays(1);
         }
         Collections.reverse(responses);
@@ -99,7 +110,7 @@ public class ProgressService {
         Double weekAverage = executionRepository.findAverageByExerciseAndPeriod(exercise,monday,sundayActual);
         int weekBasedYear = monday.get(IsoFields.WEEK_BASED_YEAR);
         int weekNumber = monday.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
-        return new WeeklyProgressResponse(weekBasedYear + "-W"+ weekNumber,weekAverage);
+        return new WeeklyProgressResponse(weekBasedYear + "-W" + String.format("%02d", weekNumber), weekAverage);
     }
     public WeekSummaryProgress getWeekSummary(String week){
         int[] parts = this.isoParseInt(week);
@@ -133,14 +144,10 @@ public class ProgressService {
         int weekNumber = parts[1];
         LocalDate[] weekRange = this.getWeekRange(year, weekNumber);
         List<SkillProgressResponse> responses = new ArrayList<>();
-        for (int i = 0; i < Skill.values().length; i++) {
-            Skill skill = Skill.values()[i];
+        for (Skill skill : Skill.values()) {
             SkillProgressResponse response = this.averageInPeriod_filterBySkill(skill, weekRange[0],weekRange[1]);
             responses.add(response);
         }
         return responses;
     }
-
-
-
 }
