@@ -105,6 +105,19 @@ public class ProgressService {
                 executionRepository.averageWeeklyByValue(weekRange[0], weekRange[1]));
 
     }
+    public List<SkillProgressResponse> skillSummaryInWeek(String week){
+        int[] parts = this.isoParseInt(week);
+        int year = parts[0];
+        int weekNumber = parts[1];
+        LocalDate[] weekRange = this.getWeekRange(year, weekNumber);
+        List<SkillProgressResponse> responses = new ArrayList<>();
+        for (int i = 0; i < Skill.values().length; i++) {
+            Skill skill = Skill.values()[i];
+            SkillProgressResponse response = this.averageInPeriod_filterBySkill(skill, weekRange[0],weekRange[1]);
+            responses.add(response);
+        }
+        return responses;
+    }
 
 
 

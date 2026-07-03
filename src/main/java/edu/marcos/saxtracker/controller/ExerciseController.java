@@ -1,5 +1,4 @@
 package edu.marcos.saxtracker.controller;
-
 import edu.marcos.saxtracker.dto.exercise.ExerciseRequest;
 import edu.marcos.saxtracker.dto.exercise.ExerciseResponse;
 import edu.marcos.saxtracker.dto.exercise.ExerciseUpdateRequest;
@@ -9,9 +8,6 @@ import edu.marcos.saxtracker.utils.LocationUriBuilder;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.net.URI;
 import java.util.List;
 
 @RestController
